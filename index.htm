@@ -1,0 +1,1217 @@
+<!doctype html>
+<html lang="ko">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="theme-color" content="#f7f4ed">
+    <meta name="description" content="하루의 마음을 차분히 기록하는 나만의 일기장">
+    <title>오늘의 기록 — 나의 일기장</title>
+    <style>
+      :root {
+        color-scheme: light;
+        font-family: "Malgun Gothic", "Apple SD Gothic Neo", sans-serif;
+        font-synthesis: none;
+        text-rendering: optimizeLegibility;
+        -webkit-font-smoothing: antialiased;
+        --ink: #29372f;
+        --muted: #788177;
+        --paper: #f7f4ed;
+        --card: #fffefa;
+        --line: #e7e4da;
+        --green: #426a50;
+        --green-dark: #34543f;
+        --green-pale: #e9f0e8;
+        --peach: #f5e5d8;
+        --danger: #a3473e;
+        --shadow: 0 16px 45px rgb(55 60 45 / 7%);
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      body {
+        min-width: 320px;
+        min-height: 100vh;
+        min-height: 100dvh;
+        margin: 0;
+        color: var(--ink);
+        background:
+          radial-gradient(ellipse at 8% 0%, rgb(227 232 216 / 55%), transparent 32rem),
+          var(--paper);
+      }
+
+      button,
+      input,
+      textarea {
+        font: inherit;
+      }
+
+      button {
+        cursor: pointer;
+        touch-action: manipulation;
+      }
+
+      button:focus-visible,
+      input:focus-visible,
+      textarea:focus-visible {
+        outline: 3px solid #8aaa91;
+        outline-offset: 3px;
+      }
+
+      .page {
+        width: min(1160px, 100%);
+        margin-inline: auto;
+        padding: clamp(1rem, 3vw, 2rem) clamp(1rem, 5vw, 3.5rem);
+      }
+
+      .masthead {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 1rem;
+        margin-bottom: clamp(1.25rem, 3vw, 2rem);
+      }
+
+      .brand {
+        display: flex;
+        align-items: center;
+        gap: 0.85rem;
+      }
+
+      .brand-mark {
+        width: 3rem;
+        height: 3rem;
+        display: grid;
+        place-items: center;
+        border: 1px solid #d6e0d3;
+        border-radius: 50%;
+        color: var(--green);
+        background: var(--green-pale);
+        font-size: 1.4rem;
+      }
+
+      .brand-name {
+        margin: 0;
+        font-size: 1.1rem;
+        font-weight: 800;
+        letter-spacing: -0.03em;
+      }
+
+      .brand-caption {
+        margin: 0.25rem 0 0;
+        color: var(--muted);
+        font-size: 0.82rem;
+      }
+
+      .today-label {
+        color: var(--muted);
+        font-size: 0.95rem;
+        text-align: right;
+      }
+
+      .layout {
+        display: block;
+      }
+
+      .card {
+        border: 1px solid var(--line);
+        border-radius: 1.5rem;
+        background: var(--card);
+        box-shadow: var(--shadow);
+      }
+
+      .editor {
+        padding: clamp(1rem, 3vw, 1.75rem);
+      }
+
+      .section-heading {
+        display: grid;
+        grid-template-columns: minmax(0, 1fr) auto;
+        align-items: center;
+        justify-content: space-between;
+        gap: 0.65rem 1rem;
+        margin-bottom: 0.85rem;
+      }
+
+      .section-heading h2 {
+        margin: 0;
+        font-size: 1.2rem;
+        letter-spacing: -0.04em;
+      }
+
+      .editor-title {
+        display: contents;
+        min-width: 0;
+      }
+
+      .date-location-controls {
+        grid-column: 1 / -1;
+        display: flex;
+        align-items: center;
+        gap: 0.6rem;
+      }
+
+      .date-picker {
+        display: flex;
+        align-items: center;
+        gap: 0.4rem;
+        color: var(--muted);
+        font-size: 0.84rem;
+        font-weight: 700;
+      }
+
+      .date-picker input {
+        width: auto;
+        min-height: 2.5rem;
+        padding: 0.35rem 0.5rem;
+        font-size: 0.88rem;
+      }
+
+      .heading-actions {
+        display: flex;
+        align-items: center;
+        gap: 0.65rem;
+      }
+
+      .location-menu {
+        position: relative;
+      }
+
+      .location-menu summary {
+        min-height: 2.5rem;
+        display: flex;
+        align-items: center;
+        gap: 0.35rem;
+        padding: 0.45rem 0.7rem;
+        border: 1px solid var(--line);
+        border-radius: 0.75rem;
+        color: var(--green);
+        background: var(--green-pale);
+        font-size: 0.88rem;
+        font-weight: 700;
+        list-style: none;
+        cursor: pointer;
+        touch-action: manipulation;
+      }
+
+      .location-menu summary::-webkit-details-marker {
+        display: none;
+      }
+
+      .location-menu summary::after {
+        content: "⌄";
+      }
+
+      .location-menu[open] summary::after {
+        content: "⌃";
+      }
+
+      .location-menu summary:focus-visible {
+        outline: 3px solid #8aaa91;
+        outline-offset: 3px;
+      }
+
+      .location-menu-panel {
+        position: absolute;
+        z-index: 6;
+        top: calc(100% + 0.5rem);
+        left: 0;
+        width: min(360px, calc(100vw - 2rem));
+        padding: 1rem;
+        border: 1px solid var(--line);
+        border-radius: 1rem;
+        background: var(--card);
+        box-shadow: var(--shadow);
+      }
+
+      .location-menu-panel .field {
+        margin-bottom: 0.5rem;
+      }
+
+      .entries-menu {
+        position: relative;
+      }
+
+      .entries-menu summary {
+        min-height: 2.75rem;
+        display: flex;
+        align-items: center;
+        gap: 0.4rem;
+        padding: 0.55rem 0.8rem;
+        border: 1px solid var(--line);
+        border-radius: 0.8rem;
+        color: var(--green);
+        background: var(--green-pale);
+        font-size: 0.9rem;
+        font-weight: 700;
+        list-style: none;
+        cursor: pointer;
+        touch-action: manipulation;
+      }
+
+      .entries-menu summary::-webkit-details-marker {
+        display: none;
+      }
+
+      .entries-menu summary::after {
+        content: "⌄";
+        font-size: 1rem;
+      }
+
+      .entries-menu[open] summary::after {
+        content: "⌃";
+      }
+
+      .entries-menu summary:focus-visible {
+        outline: 3px solid #8aaa91;
+        outline-offset: 3px;
+      }
+
+      .entries-menu-panel {
+        position: absolute;
+        z-index: 5;
+        top: calc(100% + 0.5rem);
+        right: 0;
+        width: min(360px, calc(100vw - 2rem));
+        padding: 1rem;
+        border: 1px solid var(--line);
+        border-radius: 1rem;
+        background: var(--card);
+        box-shadow: var(--shadow);
+      }
+
+      .entries-menu-panel > .field {
+        margin-bottom: 0.75rem;
+      }
+
+      .entry-list {
+        display: grid;
+        gap: 0.6rem;
+        max-height: min(45vh, 340px);
+        overflow: auto;
+        padding-right: 0.15rem;
+      }
+
+      .entry-count {
+        color: var(--muted);
+        font-size: 0.9rem;
+      }
+
+      .field-row {
+        display: grid;
+        grid-template-columns: minmax(0, 0.75fr) minmax(0, 1.25fr);
+        gap: 0.75rem;
+      }
+
+      .field {
+        display: grid;
+        gap: 0.4rem;
+        margin-bottom: 0.75rem;
+      }
+
+      .field label {
+        font-size: 0.9rem;
+        font-weight: 700;
+      }
+
+      .field-label {
+        font-size: 0.9rem;
+        font-weight: 700;
+      }
+
+      input,
+      textarea {
+        width: 100%;
+        border: 1px solid var(--line);
+        border-radius: 0.85rem;
+        color: var(--ink);
+        background: #fffefa;
+      }
+
+      input {
+        min-width: 0;
+        min-height: 2.8rem;
+        padding: 0.55rem 0.75rem;
+      }
+
+      textarea {
+        min-height: 112px;
+        padding: 0.7rem 0.8rem;
+        line-height: 1.6;
+        resize: vertical;
+      }
+
+      input[type="file"] {
+        min-height: auto;
+        padding: 0.65rem;
+        background: #fffefa;
+      }
+
+      .location-controls,
+      .photo-controls {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.5rem;
+      }
+
+      .location-controls input {
+        min-width: 0;
+        flex: 1;
+      }
+
+      .location-button {
+        flex: 0 0 auto;
+      }
+
+      .photo-controls .button {
+        flex: 1;
+      }
+
+      input[type="file"]::file-selector-button {
+        min-height: 2.3rem;
+        margin-right: 0.75rem;
+        padding: 0.4rem 0.75rem;
+        border: 1px solid var(--line);
+        border-radius: 0.6rem;
+        color: var(--ink);
+        background: var(--paper);
+        font: inherit;
+        font-weight: 700;
+        cursor: pointer;
+      }
+
+      .field-hint {
+        margin: 0;
+        color: var(--muted);
+        font-size: 0.8rem;
+        line-height: 1.5;
+      }
+
+      .photo-previews {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(64px, 80px));
+        gap: 0.5rem;
+      }
+
+      .photo-preview {
+        position: relative;
+        overflow: hidden;
+        aspect-ratio: 1;
+        border: 1px solid var(--line);
+        border-radius: 0.8rem;
+        background: var(--paper);
+      }
+
+      .photo-preview img {
+        width: 100%;
+        height: 100%;
+        display: block;
+        object-fit: cover;
+      }
+
+      .photo-remove {
+        position: absolute;
+        top: 0.35rem;
+        right: 0.35rem;
+        width: 2rem;
+        height: 2rem;
+        padding: 0;
+        border: 1px solid rgb(255 255 255 / 75%);
+        border-radius: 50%;
+        color: #fff;
+        background: rgb(41 55 47 / 82%);
+        font-size: 1.2rem;
+        line-height: 1;
+      }
+
+      input::placeholder,
+      textarea::placeholder {
+        color: #9b9f95;
+      }
+
+      .editor-footer {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 1rem;
+        flex-wrap: wrap;
+      }
+
+      .privacy-note {
+        margin: 0;
+        color: var(--muted);
+        font-size: 0.8rem;
+        line-height: 1.5;
+      }
+
+      .button-row {
+        display: flex;
+        gap: 0.6rem;
+      }
+
+      .button {
+        min-height: 2.9rem;
+        padding: 0.65rem 1rem;
+        border: 1px solid transparent;
+        border-radius: 0.8rem;
+        font-weight: 700;
+        transition: background-color 150ms ease, border-color 150ms ease;
+      }
+
+      .button:disabled {
+        opacity: 0.6;
+        cursor: wait;
+      }
+
+      .button-primary {
+        color: #fff;
+        background: var(--green);
+      }
+
+      .button-primary:hover {
+        background: var(--green-dark);
+      }
+
+      .button-secondary {
+        border-color: var(--line);
+        color: var(--ink);
+        background: transparent;
+      }
+
+      .button-secondary:hover {
+        background: var(--paper);
+      }
+
+      .button-danger {
+        border-color: #ead5d1;
+        color: var(--danger);
+        background: #fff9f7;
+      }
+
+      .button-danger:hover {
+        background: #f8eae6;
+      }
+
+      .entries {
+        padding: clamp(1.25rem, 4vw, 2rem);
+      }
+
+      .entry-item {
+        width: 100%;
+        padding: 1rem;
+        border: 1px solid transparent;
+        border-radius: 1rem;
+        color: inherit;
+        background: #faf9f4;
+        text-align: left;
+      }
+
+      .entry-item:hover,
+      .entry-item[aria-current="true"] {
+        border-color: #cfddcd;
+        background: var(--green-pale);
+      }
+
+      .entry-item-date {
+        display: block;
+        margin-bottom: 0.4rem;
+        color: var(--green);
+        font-size: 0.78rem;
+        font-weight: 800;
+      }
+
+      .entry-item-title {
+        display: block;
+        overflow: hidden;
+        font-size: 1rem;
+        font-weight: 800;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+      }
+
+      .entry-item-preview {
+        display: -webkit-box;
+        overflow: hidden;
+        margin-top: 0.35rem;
+        color: var(--muted);
+        font-size: 0.86rem;
+        line-height: 1.5;
+        -webkit-box-orient: vertical;
+        -webkit-line-clamp: 2;
+      }
+
+      .entry-item-location {
+        display: block;
+        margin-top: 0.4rem;
+        color: var(--green);
+        font-size: 0.8rem;
+      }
+
+      .entry-item-photo {
+        width: 100%;
+        max-height: 150px;
+        display: block;
+        margin-top: 0.7rem;
+        border-radius: 0.65rem;
+        object-fit: cover;
+      }
+
+      .empty-state {
+        padding: 2.5rem 1rem;
+        color: var(--muted);
+        text-align: center;
+      }
+
+      .empty-icon {
+        display: block;
+        margin-bottom: 0.8rem;
+        font-size: 2rem;
+      }
+
+      .empty-state p {
+        margin: 0;
+        line-height: 1.7;
+      }
+
+      .status {
+        min-height: 1.5rem;
+        margin: 0.75rem 0 0;
+        color: var(--green);
+        font-size: 0.85rem;
+      }
+
+      .status.error {
+        color: var(--danger);
+      }
+
+      .delete-button {
+        padding-inline: 0.75rem;
+        color: var(--danger);
+      }
+
+      [hidden] {
+        display: none !important;
+      }
+
+      @media (max-width: 760px) {
+        .page {
+          padding: 0.75rem;
+        }
+
+        .masthead {
+          margin-bottom: 0.75rem;
+        }
+
+        .brand-mark {
+          width: 2.5rem;
+          height: 2.5rem;
+        }
+
+        .brand-caption {
+          display: none;
+        }
+
+        .editor {
+          padding: 0.9rem;
+          border-radius: 1rem;
+        }
+
+        .section-heading {
+          margin-bottom: 0.65rem;
+        }
+
+        .date-location-controls {
+          gap: 0.45rem;
+        }
+
+        .date-picker {
+          gap: 0.3rem;
+          font-size: 0.8rem;
+        }
+
+        .date-picker input {
+          max-width: 138px;
+          min-height: 2.4rem;
+          padding-inline: 0.35rem;
+          font-size: 0.8rem;
+        }
+
+        .field {
+          margin-bottom: 0.55rem;
+        }
+
+        textarea {
+          min-height: 88px;
+        }
+
+        .field-hint {
+          display: none;
+        }
+
+        .editor-footer {
+          align-items: center;
+          flex-direction: row;
+        }
+
+        .privacy-note {
+          max-width: 45%;
+        }
+
+        .status {
+          margin-top: 0.3rem;
+        }
+      }
+
+      @media (max-width: 460px) {
+        .masthead {
+          align-items: center;
+        }
+
+        .today-label {
+          max-width: 7rem;
+          font-size: 0.82rem;
+        }
+
+        .button-row {
+          display: flex;
+          gap: 0.35rem;
+        }
+
+        .button-row .button {
+          min-height: 2.65rem;
+          padding-inline: 0.7rem;
+        }
+
+        .field-row {
+          grid-template-columns: minmax(0, 0.8fr) minmax(0, 1.2fr);
+          gap: 0.5rem;
+        }
+
+        .field-row .field {
+          min-width: 0;
+        }
+
+        .location-controls {
+          flex-wrap: nowrap;
+        }
+
+        .location-controls input {
+          width: 1%;
+        }
+
+        .location-button {
+          padding-inline: 0.65rem;
+        }
+
+        .location-menu summary {
+          min-height: 2.4rem;
+          padding-inline: 0.65rem;
+        }
+
+        .photo-controls {
+          flex-wrap: nowrap;
+        }
+
+        .photo-controls .button {
+          min-width: 0;
+          padding-inline: 0.5rem;
+          font-size: 0.86rem;
+        }
+
+        .privacy-note {
+          max-width: 42%;
+          font-size: 0.72rem;
+        }
+      }
+
+      @media (prefers-reduced-motion: reduce) {
+        *,
+        *::before,
+        *::after {
+          scroll-behavior: auto !important;
+          transition-duration: 0.01ms !important;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <main class="page">
+      <header class="masthead">
+        <div class="brand">
+          <span class="brand-mark" aria-hidden="true">✎</span>
+          <div>
+            <p class="brand-name">오늘의 기록</p>
+            <p class="brand-caption">천천히, 나답게 쓰는 일기</p>
+          </div>
+        </div>
+        <time class="today-label" id="today-label"></time>
+      </header>
+
+      <div class="layout">
+        <section class="card editor" aria-labelledby="editor-heading">
+          <div class="section-heading">
+            <div class="editor-title">
+              <h2 id="editor-heading">Diary</h2>
+              <div class="date-location-controls">
+                <label class="date-picker" for="entry-date">
+                  <span>날짜</span>
+                  <input id="entry-date" name="date" type="date" aria-label="날짜 선택" required>
+                </label>
+                <details class="location-menu" id="location-menu">
+                  <summary>장소</summary>
+                  <div class="location-menu-panel">
+                    <div class="field">
+                      <label for="entry-location">장소 <span class="entry-count">(선택)</span></label>
+                      <div class="location-controls">
+                        <input id="entry-location" name="location" maxlength="120" placeholder="예: 동네 카페, 한강 공원">
+                        <button class="button button-secondary location-button" id="current-location" type="button">현재 위치</button>
+                      </div>
+                      <p class="field-hint">현재 위치 버튼을 누르면 GPS를 확인합니다. 장소 이름 조회를 위해 좌표가 OpenStreetMap에 전달됩니다. 브라우저 위치 권한이 필요합니다.</p>
+                    </div>
+                  </div>
+                </details>
+              </div>
+            </div>
+            <div class="heading-actions">
+              <details class="entries-menu" id="entries-menu">
+                <summary>지난 기록 <span class="entry-count" id="entry-count">0편</span></summary>
+                <div class="entries-menu-panel">
+                  <label class="field search" for="search-entry">
+                    <span>일기 찾기</span>
+                    <input id="search-entry" type="search" placeholder="제목이나 내용 검색">
+                  </label>
+                  <div class="entry-list" id="entry-list"></div>
+                  <div class="empty-state" id="empty-state">
+                    <span class="empty-icon" aria-hidden="true">☁</span>
+                    <p class="empty-copy">아직 기록이 없어요.
+오늘의 이야기를 첫 일기로 남겨보세요.</p>
+                  </div>
+                </div>
+              </details>
+            </div>
+          </div>
+          <form id="entry-form">
+            <div class="field">
+              <label for="entry-title">제목</label>
+              <input id="entry-title" name="title" maxlength="80" placeholder="오늘을 한마디로 표현한다면" required>
+            </div>
+            <div class="field">
+              <label for="entry-body">오늘의 이야기</label>
+              <textarea id="entry-body" name="body" maxlength="10000" placeholder="오늘 있었던 일이나 마음에 남은 생각을 자유롭게 적어보세요." required></textarea>
+            </div>
+            <div class="field">
+              <span class="field-label">사진 <span class="entry-count">(선택, 최대 4장)</span></span>
+              <div class="photo-controls">
+                <button class="button button-secondary" id="take-photo" type="button">카메라로 촬영</button>
+                <button class="button button-secondary" id="choose-photos" type="button">갤러리에서 선택</button>
+              </div>
+              <input id="camera-input" name="camera" type="file" accept="image/*" capture="environment" hidden>
+              <input id="gallery-input" name="gallery" type="file" accept="image/*" multiple hidden>
+              <p class="field-hint">사진은 저장 공간을 아끼도록 크기를 줄여 이 기기에 저장합니다.</p>
+              <div class="photo-previews" id="photo-previews" aria-label="첨부한 사진"></div>
+            </div>
+            <div class="editor-footer">
+              <p class="privacy-note">일기와 사진은 이 기기의 브라우저에 저장됩니다.</p>
+              <div class="button-row">
+                <button class="button button-danger delete-button" id="delete-entry" type="button" hidden>삭제</button>
+                <button class="button button-secondary" id="cancel-edit" type="button" hidden>취소</button>
+                <button class="button button-primary" id="save-entry" type="submit">일기 저장</button>
+              </div>
+            </div>
+          </form>
+          <p class="status" id="status" role="status" aria-live="polite"></p>
+        </section>
+      </div>
+    </main>
+
+    <script>
+      const STORAGE_KEY = "oneul-ui-ilgi-v1";
+      const form = document.querySelector("#entry-form");
+      const dateInput = document.querySelector("#entry-date");
+      const titleInput = document.querySelector("#entry-title");
+      const locationInput = document.querySelector("#entry-location");
+      const bodyInput = document.querySelector("#entry-body");
+      const cameraInput = document.querySelector("#camera-input");
+      const galleryInput = document.querySelector("#gallery-input");
+      const currentLocationButton = document.querySelector("#current-location");
+      const photoPreviews = document.querySelector("#photo-previews");
+      const listElement = document.querySelector("#entry-list");
+      const emptyState = document.querySelector("#empty-state");
+      const statusElement = document.querySelector("#status");
+      const saveButton = document.querySelector("#save-entry");
+      const cancelButton = document.querySelector("#cancel-edit");
+      const deleteButton = document.querySelector("#delete-entry");
+      const searchInput = document.querySelector("#search-entry");
+      const entryCount = document.querySelector("#entry-count");
+      const entriesMenu = document.querySelector("#entries-menu");
+      let entries = loadEntries();
+      let editingId = null;
+      let photos = [];
+
+      function localDateString(date = new Date()) {
+        const year = date.getFullYear();
+        const month = String(date.getMonth() + 1).padStart(2, "0");
+        const day = String(date.getDate()).padStart(2, "0");
+        return `${year}-${month}-${day}`;
+      }
+
+      function formatDate(dateString, options = { year: "numeric", month: "long", day: "numeric", weekday: "short" }) {
+        const [year, month, day] = dateString.split("-").map(Number);
+        return new Intl.DateTimeFormat("ko-KR", options).format(new Date(year, month - 1, day));
+      }
+
+      function loadEntries() {
+        try {
+          const stored = localStorage.getItem(STORAGE_KEY);
+          if (!stored) return [];
+          const parsed = JSON.parse(stored);
+          if (!Array.isArray(parsed) || parsed.some((entry) =>
+            !entry || typeof entry.id !== "string" || typeof entry.date !== "string" ||
+            typeof entry.title !== "string" || typeof entry.body !== "string"
+          )) {
+            throw new Error("저장된 일기 형식이 올바르지 않습니다.");
+          }
+          return parsed.map((entry) => {
+            const savedPhotos = entry.photos ?? [];
+            if (typeof entry.location !== "undefined" && typeof entry.location !== "string") {
+              throw new Error("저장된 장소 정보가 올바르지 않습니다.");
+            }
+            if (!Array.isArray(savedPhotos) || savedPhotos.some((photo) =>
+              typeof photo !== "string" || !photo.startsWith("data:image/jpeg;base64,")
+            )) {
+              throw new Error("저장된 사진 정보가 올바르지 않습니다.");
+            }
+            return { ...entry, location: entry.location ?? "", photos: savedPhotos };
+          });
+        } catch (error) {
+          window.setTimeout(() => showStatus(`일기를 불러오지 못했습니다: ${error.message}`, true), 0);
+          return [];
+        }
+      }
+
+      function saveEntries(nextEntries) {
+        try {
+          localStorage.setItem(STORAGE_KEY, JSON.stringify(nextEntries));
+          entries = nextEntries;
+          showStatus("일기를 이 기기에 저장했어요.");
+          return true;
+        } catch (error) {
+          showStatus(`저장하지 못했습니다: ${error.message}`, true);
+          return false;
+        }
+      }
+
+      function showStatus(message, isError = false) {
+        statusElement.textContent = message;
+        statusElement.classList.toggle("error", isError);
+      }
+
+      function clearPhotos() {
+        for (const photo of photos) {
+          if (photo.previewUrl) URL.revokeObjectURL(photo.previewUrl);
+        }
+        photos = [];
+        cameraInput.value = "";
+        galleryInput.value = "";
+        renderPhotoPreviews();
+      }
+
+      function renderPhotoPreviews() {
+        const previews = photos.map((photo, index) => {
+          const wrapper = document.createElement("div");
+          wrapper.className = "photo-preview";
+
+          const image = document.createElement("img");
+          image.src = photo.previewUrl ?? photo.dataUrl;
+          image.alt = `첨부 사진 ${index + 1}`;
+
+          const removeButton = document.createElement("button");
+          removeButton.type = "button";
+          removeButton.className = "photo-remove";
+          removeButton.textContent = "×";
+          removeButton.setAttribute("aria-label", `사진 ${index + 1} 삭제`);
+          removeButton.addEventListener("click", () => {
+            const [removed] = photos.splice(index, 1);
+            if (removed.previewUrl) URL.revokeObjectURL(removed.previewUrl);
+            renderPhotoPreviews();
+          });
+
+          wrapper.append(image, removeButton);
+          return wrapper;
+        });
+        photoPreviews.replaceChildren(...previews);
+      }
+
+      function compressPhoto(file) {
+        return new Promise((resolve, reject) => {
+          const sourceUrl = URL.createObjectURL(file);
+          const image = new Image();
+          image.onload = () => {
+            try {
+              const maxDimension = 1200;
+              const scale = Math.min(1, maxDimension / Math.max(image.naturalWidth, image.naturalHeight));
+              const canvas = document.createElement("canvas");
+              canvas.width = Math.max(1, Math.round(image.naturalWidth * scale));
+              canvas.height = Math.max(1, Math.round(image.naturalHeight * scale));
+              const context = canvas.getContext("2d");
+              if (!context) throw new Error("사진을 처리할 수 없습니다.");
+              context.drawImage(image, 0, 0, canvas.width, canvas.height);
+              canvas.toBlob((blob) => {
+                URL.revokeObjectURL(sourceUrl);
+                if (!blob) {
+                  reject(new Error("사진을 압축하지 못했습니다."));
+                  return;
+                }
+                const reader = new FileReader();
+                reader.onload = () => resolve(reader.result);
+                reader.onerror = () => reject(new Error("사진을 읽지 못했습니다."));
+                reader.readAsDataURL(blob);
+              }, "image/jpeg", 0.78);
+            } catch (error) {
+              URL.revokeObjectURL(sourceUrl);
+              reject(error);
+            }
+          };
+          image.onerror = () => {
+            URL.revokeObjectURL(sourceUrl);
+            reject(new Error(`"${file.name}" 사진을 열지 못했습니다.`));
+          };
+          image.src = sourceUrl;
+        });
+      }
+
+      function findCurrentPlace() {
+        if (!navigator.geolocation) {
+          showStatus("이 브라우저에서는 GPS 위치 기능을 사용할 수 없습니다.", true);
+          return;
+        }
+        if (!window.isSecureContext) {
+          showStatus("GPS를 사용하려면 HTTPS 또는 localhost에서 이 일기장을 열어 주세요.", true);
+          return;
+        }
+
+        currentLocationButton.disabled = true;
+        currentLocationButton.textContent = "위치 확인 중…";
+        showStatus("현재 위치를 확인하고 있어요. 브라우저의 위치 권한을 허용해 주세요.");
+        navigator.geolocation.getCurrentPosition(async (position) => {
+          const { latitude, longitude } = position.coords;
+          try {
+            const params = new URLSearchParams({
+              format: "jsonv2",
+              lat: String(latitude),
+              lon: String(longitude),
+              zoom: "18",
+              "accept-language": "ko"
+            });
+            const response = await fetch(`https://nominatim.openstreetmap.org/reverse?${params}`);
+            if (!response.ok) {
+              throw new Error(`장소 이름을 조회하지 못했습니다 (HTTP ${response.status}).`);
+            }
+            const place = await response.json();
+            if (typeof place.display_name !== "string" || !place.display_name) {
+              throw new Error("이 위치의 장소 이름을 찾지 못했습니다.");
+            }
+            const address = place.address ?? {};
+            const parts = [
+              place.name || address.amenity || address.tourism || address.shop,
+              address.neighbourhood || address.suburb || address.city_district,
+              address.city || address.town || address.village || address.county
+            ].filter((part, index, all) => part && all.indexOf(part) === index);
+            locationInput.value = (parts.length ? parts : place.display_name.split(", ").slice(0, 3))
+              .join(", ")
+              .slice(0, 120);
+            showStatus("현재 위치를 장소에 입력했어요.");
+          } catch (error) {
+            locationInput.value = `${latitude.toFixed(5)}, ${longitude.toFixed(5)}`;
+            showStatus(`장소 이름 조회에 실패해 GPS 좌표를 입력했습니다. (${error.message})`, true);
+          } finally {
+            currentLocationButton.disabled = false;
+            currentLocationButton.textContent = "현재 위치";
+          }
+        }, (error) => {
+          const messages = {
+            1: "위치 권한을 허용해야 현재 장소를 확인할 수 있어요.",
+            2: "현재 위치를 확인할 수 없습니다. GPS나 기기 위치 설정을 확인해 주세요.",
+            3: "위치 확인 시간이 초과되었습니다. 다시 시도해 주세요."
+          };
+          showStatus(messages[error.code] ?? `위치를 확인하지 못했습니다: ${error.message}`, true);
+          currentLocationButton.disabled = false;
+          currentLocationButton.textContent = "현재 위치";
+        }, {
+          enableHighAccuracy: false,
+          timeout: 15000,
+          maximumAge: 300000
+        });
+      }
+
+      function createEntryButton(entry) {
+        const button = document.createElement("button");
+        button.type = "button";
+        button.className = "entry-item";
+        button.setAttribute("aria-current", String(entry.id === editingId));
+
+        const date = document.createElement("span");
+        date.className = "entry-item-date";
+        date.textContent = formatDate(entry.date);
+
+        const title = document.createElement("span");
+        title.className = "entry-item-title";
+        title.textContent = entry.title;
+
+        const preview = document.createElement("span");
+        preview.className = "entry-item-preview";
+        preview.textContent = entry.body;
+
+        button.append(date, title, preview);
+        if (entry.location) {
+          const location = document.createElement("span");
+          location.className = "entry-item-location";
+          location.textContent = `📍 ${entry.location}`;
+          button.append(location);
+        }
+        if (entry.photos?.length) {
+          const image = document.createElement("img");
+          image.className = "entry-item-photo";
+          image.src = entry.photos[0];
+          image.alt = `${entry.title} 일기 사진`;
+          button.append(image);
+        }
+        button.addEventListener("click", () => beginEdit(entry));
+        return button;
+      }
+
+      function renderEntries() {
+        const query = searchInput.value.trim().toLocaleLowerCase("ko");
+        const filtered = [...entries]
+          .sort((a, b) => b.date.localeCompare(a.date) || b.updatedAt - a.updatedAt)
+          .filter((entry) => `${entry.title} ${entry.body} ${entry.location}`.toLocaleLowerCase("ko").includes(query));
+
+        listElement.replaceChildren(...filtered.map(createEntryButton));
+        emptyState.hidden = filtered.length > 0;
+        entryCount.textContent = `${entries.length}편`;
+        emptyState.querySelector(".empty-copy").textContent = entries.length === 0
+          ? "아직 기록이 없어요.\n오늘의 이야기를 첫 일기로 남겨보세요."
+          : "검색 결과가 없어요. 다른 낱말로 찾아보세요.";
+      }
+
+      function resetEditor() {
+        editingId = null;
+        form.reset();
+        dateInput.value = localDateString();
+        locationInput.value = "";
+        clearPhotos();
+        saveButton.textContent = "일기 저장";
+        cancelButton.hidden = true;
+        deleteButton.hidden = true;
+        renderEntries();
+      }
+
+      function beginEdit(entry) {
+        entriesMenu.open = false;
+        editingId = entry.id;
+        dateInput.value = entry.date;
+        titleInput.value = entry.title;
+        locationInput.value = entry.location ?? "";
+        bodyInput.value = entry.body;
+        clearPhotos();
+        photos = (entry.photos ?? []).map((dataUrl) => ({ dataUrl }));
+        renderPhotoPreviews();
+        saveButton.textContent = "수정 내용 저장";
+        cancelButton.hidden = false;
+        deleteButton.hidden = false;
+        showStatus("");
+        renderEntries();
+        titleInput.focus();
+      }
+
+      document.querySelector("#today-label").textContent =
+        formatDate(localDateString(), { year: "numeric", month: "long", day: "numeric", weekday: "long" });
+      dateInput.value = localDateString();
+
+      form.addEventListener("submit", async (event) => {
+        event.preventDefault();
+        const title = titleInput.value.trim();
+        const location = locationInput.value.trim();
+        const body = bodyInput.value.trim();
+        if (!title || !body || !dateInput.value) {
+          showStatus("날짜, 제목, 오늘의 이야기를 모두 입력해 주세요.", true);
+          return;
+        }
+
+        saveButton.disabled = true;
+        showStatus("일기를 저장하고 있어요.");
+        try {
+          const savedPhotos = await Promise.all(photos.map((photo) =>
+            photo.file ? compressPhoto(photo.file) : photo.dataUrl
+          ));
+          const now = Date.now();
+          const existing = entries.find((entry) => entry.id === editingId);
+          const entry = {
+            id: existing ? existing.id : (crypto.randomUUID?.() ?? `${now}-${Math.random().toString(36).slice(2)}`),
+            date: dateInput.value,
+            title,
+            location,
+            body,
+            photos: savedPhotos,
+            updatedAt: now
+          };
+          const nextEntries = existing
+            ? entries.map((item) => item.id === existing.id ? entry : item)
+            : [...entries, entry];
+
+          if (saveEntries(nextEntries)) {
+            resetEditor();
+            renderEntries();
+          }
+        } catch (error) {
+          showStatus(`사진을 저장하지 못했습니다: ${error.message}`, true);
+        } finally {
+          saveButton.disabled = false;
+        }
+      });
+
+      cancelButton.addEventListener("click", () => {
+        resetEditor();
+        showStatus("수정을 취소했어요.");
+      });
+
+      deleteButton.addEventListener("click", () => {
+        if (!editingId) return;
+        const entry = entries.find((item) => item.id === editingId);
+        if (!entry || !window.confirm(`"${entry.title}" 일기를 삭제할까요?`)) return;
+        const nextEntries = entries.filter((item) => item.id !== editingId);
+        if (saveEntries(nextEntries)) resetEditor();
+      });
+
+      searchInput.addEventListener("input", renderEntries);
+
+      function addSelectedPhotos(fileInput) {
+        const selected = Array.from(fileInput.files ?? []);
+        fileInput.value = "";
+        if (selected.some((file) => !file.type.startsWith("image/"))) {
+          showStatus("이미지 파일만 첨부할 수 있어요.", true);
+          return;
+        }
+        if (photos.length + selected.length > 4) {
+          showStatus("일기 한 편에는 사진을 최대 4장까지 첨부할 수 있어요.", true);
+          return;
+        }
+        photos.push(...selected.map((file) => ({
+          file,
+          previewUrl: URL.createObjectURL(file)
+        })));
+        renderPhotoPreviews();
+        showStatus(selected.length ? `사진 ${selected.length}장을 추가했어요.` : "");
+      }
+
+      document.querySelector("#take-photo").addEventListener("click", () => cameraInput.click());
+      document.querySelector("#choose-photos").addEventListener("click", () => galleryInput.click());
+      cameraInput.addEventListener("change", () => addSelectedPhotos(cameraInput));
+      galleryInput.addEventListener("change", () => addSelectedPhotos(galleryInput));
+      currentLocationButton.addEventListener("click", findCurrentPlace);
+
+      renderEntries();
+    </script>
+  </body>
+</html>
